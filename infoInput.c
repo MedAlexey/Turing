@@ -14,8 +14,8 @@ void readDescription(char *file, char ** alfabet, char *voidSymbol, int *numOfTa
     FILE *input;
     input = fopen(file, "r");
     if (input == NULL) {
-        printf("File \"%s\" can't be open", file);
-        exit(2);
+        printf("Error: file \"%s\" can't be open", file);
+        exit(7);
     }
 
     char tmpLine[2000000];
@@ -23,8 +23,8 @@ void readDescription(char *file, char ** alfabet, char *voidSymbol, int *numOfTa
     fgets(tmpLine, sizeof(tmpLine), input);
     *numOfTapes = strtol(tmpLine, NULL, 0);
     if (*numOfTapes == 0) {
-        printf("Wrong number of tapes.");
-        exit(3);
+        printf("Error: wrong number of tapes.");
+        exit(8);
     }
 
 
@@ -41,8 +41,8 @@ void readDescription(char *file, char ** alfabet, char *voidSymbol, int *numOfTa
     fgets(tmpLine, sizeof(tmpLine), input);
     *curState = strtol(strcut(tmpLine, 1, strlen(tmpLine)), NULL, 0);
     if (*curState == 0) {
-        printf("Wrong start state.");
-        exit(4);
+        printf("Error: wrong start state.");
+        exit(9);
     }
 
 
@@ -61,8 +61,8 @@ void splitState(char state[], struct listOfStates *states) {
     struct listOfStates *newListOfStatesCell = (states->thisState == NULL) ? states :
                                                (struct listOfStates *) malloc(sizeof(*newListOfStatesCell));
     if (newListOfStatesCell == NULL) {
-        printf("Not enough memory.\n");
-        exit(88);
+        printf("Error: not enough memory.\n");
+        exit(1);
     }
     newListOfStatesCell->nextState = NULL;
 
@@ -70,8 +70,8 @@ void splitState(char state[], struct listOfStates *states) {
     if (state[strlen(state)] == '\n') state = strcut(state, 0, strlen(state) - 1); // избавляемся от переноса строки
     char *statePart = strdup(state);
     if (statePart == NULL) {
-        printf("Not enough memory.\n");
-        exit(88);
+        printf("Error: not enough memory.\n");
+        exit(1);
     }
     statePart = strtok(statePart, " ");
     state = strcut(state, strlen(statePart) + 1, strlen(state));
@@ -84,8 +84,8 @@ void splitState(char state[], struct listOfStates *states) {
     while (statePart != NULL) {
         struct state *newStateCell = (struct state *) malloc(sizeof(*newStateCell));
         if (newStateCell == NULL){
-            printf("Not enough memory.\n");
-            exit(88);
+            printf("Error: not enough memory.\n");
+            exit(1);
         }
         if (prevStateCell == NULL) newListOfStatesCell->thisState = newStateCell;
         else prevStateCell->next = newStateCell;
@@ -94,8 +94,8 @@ void splitState(char state[], struct listOfStates *states) {
         newStateCell->curCondition = strdup(strtok(statePart, "->"));
         newStateCell->newCondition = strdup(strtok(NULL, "->"));
         if (newStateCell->curCondition == NULL || newStateCell->newCondition == NULL){
-            printf("Not enough memory.\n");
-            exit(88);
+            printf("Error: not enough memory.\n");
+            exit(1);
         }
         char *newState = strtok(NULL, "->");
         newState = strcut(newState, 1, strlen(newState) - 1);
@@ -124,8 +124,8 @@ void readTapes(char *fileName, char voidSymbol, int numOfTapes, struct listOfTap
     FILE *input;
     input = fopen(fileName, "r");
     if (input == NULL) {
-        printf("File \"%s\" can't be open.\n", fileName);
-        exit(5);
+        printf("Error: file \"%s\" can't be open.\n", fileName);
+        exit(7);
     }
 
     //создаём нужное кол-во лент
@@ -134,8 +134,8 @@ void readTapes(char *fileName, char voidSymbol, int numOfTapes, struct listOfTap
         struct listOfTapes *newListOfTapesCell = (struct listOfTapes*)malloc(sizeof(*newListOfTapesCell));
         struct tapeCell *newTapeCell = (struct tapeCell*)malloc(sizeof(*newTapeCell));
         if (newListOfTapesCell == NULL || newTapeCell == NULL){
-            printf("Not enough memory.\n");
-            exit(88);
+            printf("Error: not enough memory.\n");
+            exit(1);
         }
         newTapeCell->data = voidSymbol;
         newTapeCell->next = NULL;
@@ -163,8 +163,8 @@ void readTapes(char *fileName, char voidSymbol, int numOfTapes, struct listOfTap
     while(fgets(inputString, sizeof(inputString), input)){
         char *tapeNum = strcut(inputString, 4, strlen(inputString) - 1);
         if (atoi(tapeNum) == 0) {
-            printf("Wrong tape number: %s.\n", inputString);
-            exit(6);
+            printf("Error: wrong tape number: %s.\n", inputString);
+            exit(10);
         }
 
         //находим нужную ленту
@@ -172,42 +172,44 @@ void readTapes(char *fileName, char voidSymbol, int numOfTapes, struct listOfTap
         while(curListOfTapesCell != NULL && curListOfTapesCell->tapeNumb != atoi(tapeNum)) curListOfTapesCell = curListOfTapesCell->nextTape;
         if (curListOfTapesCell == NULL){
             printf("Error: total tapes: %i, required tape: %i.\n", numOfTapes, atoi(tapeNum));
-            exit(7);
+            exit(11);
         }
         free(tapeNum);
 
         //cчитываем положение каретки
         fgets(inputString, sizeof(inputString), input);
         if (inputString == NULL){
-            printf("File reading error: no enough strings in file %s", fileName);
-            exit(8);
+            printf("Error: file reading error: no enough strings in file %s", fileName);
+            exit(12);
         }
         int carriagePosition = 0;
         while (inputString[carriagePosition] != 'v' && inputString[carriagePosition] != '\n' && inputString[carriagePosition] != '\0') carriagePosition++;
         if (inputString[carriagePosition] == '\n' || inputString[carriagePosition] == '\0') {
-            printf("No pointer (v) in input file.\n");
-            exit(999);
+            printf("Eror: no pointer (v) in input file.\n");
+            exit(13);
         }
         curListOfTapesCell->curPosition = carriagePosition +1;
 
         //считываем ленту
         fgets(inputString, sizeof(inputString),input);
         if (inputString == NULL){
-            printf("File reading error: no enough strings in file %s", fileName);
-            exit(8);
+            printf("Error: file reading error: no enough strings in file %s", fileName);
+            exit(12);
         }
         char *tape = strdup(inputString);
         if (tape == NULL){
-            printf("Not enough memory.\n");
-            exit(88);
+            printf("Error: not enough memory.\n");
+            exit(1);
         }
-        if (carriagePosition >= strlen(tape)){
-            printf("Pointer (v) out of tape.\n");
-            exit(999);
+        int tapeLength = strlen(tape);
+        if (carriagePosition >= tapeLength){
+            printf("Error: pointer (v) out of tape.\n");
+            exit(14);
         }
         //записываем ленту
         if(tape[strlen(tape)-1] == '\n') tape = strcut(tape,0,strlen(tape)-1); // избавляемся от символа переноса
-        for (int i = 0; i < strlen(tape); ++i) {
+        tapeLength = strlen(tape);
+        for (int i = 0; i < tapeLength; ++i) {
             //записываем символ в конец ленты
             struct tapeCell *curTapeCell = curListOfTapesCell->thisTape;
             while (curTapeCell->next != NULL) curTapeCell = curTapeCell->next;
@@ -217,8 +219,8 @@ void readTapes(char *fileName, char voidSymbol, int numOfTapes, struct listOfTap
             //добавляем пустой символ в конец ленты
             struct tapeCell *newTapeCell = (struct tapeCell*)malloc(sizeof(*newTapeCell));
             if (newTapeCell == NULL) {
-                printf("Not enough memory.\n");
-                exit(88);
+                printf("Error: not enough memory.\n");
+                exit(1);
             }
             newTapeCell->next = NULL;
             newTapeCell->data = voidSymbol;

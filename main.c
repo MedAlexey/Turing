@@ -22,13 +22,17 @@ int main(int argc, char *argv[]) {
 
     states = (struct listOfStates *) malloc(sizeof(*states));
     if (states == NULL) {
-        printf("Not enough memory.\n");
-        exit(88);
+        printf("Error: not enough memory.\n");
+        exit(1);
     }
     states->stateNumb = 1;
     states->nextState = NULL;
     states->thisState = NULL;
 
+    if (argc < 4 || argc >5) {
+        printf("Error: wrong number on parameters");
+        exit(15);
+    }
     descriptionFile = argv[1];
     tapeFile = argv[2];
     outputFile = argv[3];
@@ -43,8 +47,8 @@ int main(int argc, char *argv[]) {
     while(curState != 0){
         if (modeFlag != NULL) {
             if (strcmp(modeFlag, "-d") != 0) {
-                printf("Wrong flag.\n");
-                exit(1);
+                printf("Error: wrong flag.\n");
+                exit(2);
             }
 
             if (strcmp(modeFlag, "-d") == 0 && reqSteps == 0) {
@@ -133,8 +137,8 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
     struct listOfStates *curListOfStatesCell = states;
     while (curListOfStatesCell != NULL && curListOfStatesCell->stateNumb != *curState) curListOfStatesCell = curListOfStatesCell->nextState;
     if(curListOfStatesCell == NULL) {
-        printf("No suitable state on step num.%i.\n", *numOfStep);
-        exit(8);
+        printf("Error: no suitable state on step num.%i.\n", *numOfStep);
+        exit(3);
     }
 
     //ищем подходящую часть состояния
@@ -142,8 +146,8 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
     while (curStateCell != NULL) {
         char *curCondition = strdup(curStateCell->curCondition);
         if (curCondition == NULL){
-            printf("Not enough memory.\n");
-            exit(88);
+            printf("Error: not enough memory.\n");
+            exit(1);
         }
         curCondition = strtok(curCondition, ",");
         struct listOfTapes *curListOfTapesCell = tapes;
@@ -151,8 +155,8 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
         //сравнение condition с tapes
         while (curListOfTapesCell != NULL) {
             if (curCondition == NULL) {
-                printf("Less curCondition on step num.%i", *numOfStep);
-                exit(9);
+                printf("Error: less curCondition on step num.%i", *numOfStep);
+                exit(4);
             }
             if (curListOfTapesCell->curSymbol != *curCondition) break;
 
@@ -167,15 +171,15 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
     }
 
     if (curStateCell == NULL) {
-        printf("No suitable state condition no step num.%i.", *numOfStep);
-        exit(10);
+        printf("Error: no suitable state condition no step num.%i.", *numOfStep);
+        exit(5);
     }
 
     //переписываем символы под каретками и делаем шаги
     char *nextCondition = strdup(curStateCell->newCondition);
     if (nextCondition == NULL){
-        printf("Not enough memory.\n");
-        exit(88);
+        printf("Error: not enough memory.\n");
+        exit(1);
     }
     struct listOfTapes *curListOfTapesCell = tapes;
     while (curListOfTapesCell != NULL) {
@@ -186,8 +190,8 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
         //записываем в ленту новый символ
         char *newData = strdup(nextCondition);
         if (newData ==  NULL){
-            printf("Not enough memory.\n");
-            exit(88);
+            printf("Error: not enough memory.\n");
+            exit(1);
         }
         newData = strtok(newData, ",");
         curTapeCell->data = *newData;
@@ -196,8 +200,8 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
         //делаем шаг
         char *stepDir = strdup(nextCondition);
         if (stepDir == NULL){
-            printf("Not enough memory.\n");
-            exit(888);
+            printf("Error: not enough memory.\n");
+            exit(1);
         }
         stepDir = strtok(stepDir, ";");
         nextCondition = strcut(nextCondition, 2, strlen(nextCondition));
@@ -206,8 +210,8 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
                 if (curTapeCell->prev == NULL) {
                     struct tapeCell *newTapeCell = (struct tapeCell *) malloc(sizeof(*newTapeCell));
                     if (newTapeCell == NULL) {
-                        printf("Not enough memory.\n");
-                        exit(88);
+                        printf("Error: not enough memory.\n");
+                        exit(1);
                     }
                     newTapeCell->next = curTapeCell;
                     newTapeCell->data = *voidSymbol;
@@ -223,8 +227,8 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
                 if (curTapeCell->next == NULL) {
                     struct tapeCell *newTapeCell = (struct tapeCell *) malloc(sizeof(*newTapeCell));
                     if (newTapeCell == NULL) {
-                        printf("Not enough memory.\n");
-                        exit(88);
+                        printf("Error: not enough memory.\n");
+                        exit(1);
                     }
                     newTapeCell->next = NULL;
                     newTapeCell->data = *voidSymbol;
@@ -237,8 +241,8 @@ void step(char *voidSymbol, int * numOfStep, int *curState, struct listOfTapes *
                 break;
             default:
                 if (*stepDir != 'S') {
-                    printf("Wrong step condition in step num.%i.", *numOfStep);
-                    exit(12);
+                    printf("Error: wrong step condition in step num.%i.", *numOfStep);
+                    exit(6);
                 }
                 curListOfTapesCell->curSymbol = curTapeCell -> data;
                 break;

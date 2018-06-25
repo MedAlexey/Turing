@@ -5,7 +5,8 @@
 char *strcut(char *string, int fromIndex, int toIndex) {
     if (strlen(string) == 0) return string;
     char *result = strdup(string);
-    if (toIndex > strlen(string) + 1) toIndex = strlen(string) + 1;
+    int stringLength = strlen(string);
+    if (toIndex > stringLength + 1) toIndex = strlen(string) + 1;
     int length = toIndex - fromIndex;
     if (length < 0) return "";
     if (length == 0) result[0] = string[fromIndex];
