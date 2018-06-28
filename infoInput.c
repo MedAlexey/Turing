@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-//#include <mem.h>
 #include <string.h>
 #include "structures.h"
 #include "infoInput.h"
@@ -163,7 +162,7 @@ void readTapes(char *fileName, char voidSymbol, int numOfTapes, struct listOfTap
     while(fgets(inputString, sizeof(inputString), input)){
         char *tapeNum = strcut(inputString, 4, strlen(inputString) - 1);
         if (atoi(tapeNum) == 0) {
-            printf("Error: wrong tape number: %s.\n", inputString);
+            printf("Error: wrong tape number: %i.\n", atoi(tapeNum));
             exit(10);
         }
 
@@ -201,13 +200,13 @@ void readTapes(char *fileName, char voidSymbol, int numOfTapes, struct listOfTap
             printf("Error: not enough memory.\n");
             exit(1);
         }
+        if(tape[strlen(tape)-1] == '\n') tape = strcut(tape,0,strlen(tape)-1); // избавляемся от символа переноса
         int tapeLength = strlen(tape);
         if (carriagePosition >= tapeLength){
             printf("Error: pointer (v) out of tape.\n");
             exit(14);
         }
         //записываем ленту
-        if(tape[strlen(tape)-1] == '\n') tape = strcut(tape,0,strlen(tape)-1); // избавляемся от символа переноса
         tapeLength = strlen(tape);
         for (int i = 0; i < tapeLength; ++i) {
             //записываем символ в конец ленты
@@ -230,7 +229,6 @@ void readTapes(char *fileName, char voidSymbol, int numOfTapes, struct listOfTap
         }
         free(tape);
 
-        //curListOfTapesCell->curSymbol = curListOfTapesCell->thisTape->data;
     }
 
     fclose(input);
